@@ -1,0 +1,31 @@
+name: Deploy Frontend
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code and Build Docker Image, Run Test on Docker Container
+        uses: actions/checkout@v2 
+        #checkout our code to workflow environment - runner created (VM) where code is checked out to and it runs tests, generates deployment zip and deploys to AWS
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+        run: docker build -t kumar306/react-docker Dockerfile.dev .
+        run: docker run -e CI=true kumar306/react-docker npm test 
+    
+      - name: Generate deployment package
+        run: zip -r deploy.zip . -x '*.git*'
+
+      - name: Deploy to EBS
+        uses: einaregilsson/beanstalk-deploy@v18
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
+          application_name: #change bottom 4 to values used by our AWS EBS environment
+          environment_name: 
+          existing_bucket_name: 
+          region:
+          version_label: ${{github.sha}}
+          deployment_package: deploy.zip

@@ -1,13 +1,8 @@
 version: '3'
 services:
   react-app:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    volumes:
-      - /usr/section6/node_modules
-      - .:/usr/section6
-    ports:
-      - "3001:3000"
-
-# dev docker compose -builds image from dockerfile, as well as creating volumes, setting up port mappings
+  build:
+    context: .
+    dockerfile: Dockerfile
+  ports:
+    - "3001:80"
